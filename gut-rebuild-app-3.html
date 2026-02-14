@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gut Rebuild">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#ffffff">
+<title>Gut Rebuild</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:#e8e8ed;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px}
+.window{width:100%;max-width:1200px;height:calc(100vh - 60px);min-height:600px;border-radius:16px;position:relative;overflow:hidden;box-shadow:0 50px 100px rgba(0,0,0,0.4),0 20px 60px rgba(0,0,0,0.3);background:linear-gradient(135deg,#667 0%,#556 50%,#778 100%)}
+.window::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:0}
+.page-card{position:relative;z-index:1;background:#fff;border-radius:24px;margin:20px;height:calc(100% - 40px);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 60px rgba(0,0,0,0.1)}
+.sub-header{display:flex;align-items:center;padding:24px 32px;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08);border-radius:24px 24px 0 0;flex-shrink:0;gap:16px}
+.logo-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.15);flex-shrink:0}
+.logo-icon svg{width:20px;height:20px;fill:#1a1a1a}
+.logo-text{font-size:15px;font-weight:600;color:#1a1a1a}
+.header-meta{margin-left:auto;font-size:11px;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:1.5px}
+.breadcrumb-bar{padding:14px 32px;display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(0,0,0,0.4);border-bottom:1px solid rgba(0,0,0,0.06);flex-shrink:0;background:#fff;display:none}
+.breadcrumb-bar.visible{display:flex}
+.back-btn{width:30px;height:30px;border-radius:8px;border:1px solid rgba(0,0,0,0.12);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;margin-right:4px}
+.back-btn:hover{border-color:rgba(0,0,0,0.3)}
+.back-btn svg{width:14px;height:14px;stroke:rgba(0,0,0,0.5);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.crumb{cursor:pointer;color:rgba(0,0,0,0.4)}.crumb:hover{color:#1a1a1a}.sep{color:rgba(0,0,0,0.2)}.current{color:#1a1a1a;font-weight:500}
+.tabs-wrap{padding:16px 32px 0;background:#fff;flex-shrink:0}
+.scope-tabs{display:flex;gap:4px;background:rgba(0,0,0,0.05);border-radius:12px;padding:4px}
+.scope-tab{flex:1;padding:12px 4px;text-align:center;font-size:12px;font-weight:500;color:rgba(0,0,0,0.4);border-radius:9px;cursor:pointer;transition:all 0.25s;user-select:none}
+.scope-tab:hover{color:rgba(0,0,0,0.6)}.scope-tab.active{background:#1a1a1a;color:#fff}
+.content-area{flex:1;overflow-y:auto;background:#f0f0f4;padding:24px 32px}
+.content-area::-webkit-scrollbar{width:6px}.content-area::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+.view{display:none}.view.active{display:block}
+.info-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:rgba(0,0,0,0.35);margin-bottom:10px}
+.meal-item{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:#fff;border-radius:12px;cursor:pointer;transition:all 0.2s;border:1.5px solid rgba(0,0,0,0.08);margin-bottom:6px}
+.meal-item:hover{border-color:rgba(0,0,0,0.2)}.meal-name{font-size:14px;font-weight:500;color:#1a1a1a}.meal-meta{font-size:11px;color:rgba(0,0,0,0.4);margin-top:2px}.meal-arrow{color:rgba(0,0,0,0.2);font-size:16px}
+.variant-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border-radius:12px;cursor:pointer;border:1.5px solid rgba(0,0,0,0.08);margin-bottom:6px}
+.variant-item:hover{border-color:rgba(0,0,0,0.2)}
+.v-num{width:32px;height:32px;border-radius:8px;background:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.v-info{flex:1}.v-name{font-size:14px;font-weight:500;color:#1a1a1a}.v-desc{font-size:11px;color:rgba(0,0,0,0.45);margin-top:1px}.v-arrow{color:rgba(0,0,0,0.2);font-size:16px}
+.recipe-header{padding:28px 32px;background:#fff;border-bottom:1px solid rgba(0,0,0,0.08)}
+.recipe-title{font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:4px}.recipe-desc{font-size:13px;color:rgba(0,0,0,0.5);line-height:1.6}
+.macro-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.macro-badge{padding:8px 14px;background:#f0f0f4;border-radius:10px;font-size:13px;font-weight:600;color:#1a1a1a;border:1px solid rgba(0,0,0,0.06)}
+.macro-badge span{font-size:10px;font-weight:500;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px}
+.recipe-body{padding:24px 32px;background:#f0f0f4}
+.ingredients-list{display:flex;flex-direction:column;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,0.08);overflow:hidden;margin-bottom:24px}
+.ing-item{padding:12px 18px;font-size:13px;color:#333;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;gap:10px}.ing-item:last-child{border-bottom:none}
+.ing-dot{width:6px;height:6px;border-radius:50%;background:#1a1a1a;flex-shrink:0}
+.step-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(0,0,0,0.06)}.step-item:last-child{border-bottom:none}
+.step-num{width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.07);font-size:12px;font-weight:600;color:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-num.hl{background:#1a1a1a;color:#fff}.step-text{font-size:13px;color:#444;line-height:1.6;padding-top:4px}
+.supp-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);margin-bottom:6px}
+.supp-info{flex:1}.supp-name{font-size:14px;font-weight:600;color:#1a1a1a}.supp-dose{font-size:12px;color:rgba(0,0,0,0.55);margin-top:1px}.supp-when{font-size:11px;color:rgba(0,0,0,0.4);margin-top:2px}
+.hydro-item{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fff;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);margin-bottom:6px}
+.hydro-time{font-size:11px;color:rgba(0,0,0,0.4);font-weight:600;margin-bottom:2px}.hydro-what{font-size:13px;font-weight:500;color:#1a1a1a}.hydro-ml{font-size:13px;font-weight:600;color:rgba(0,0,0,0.5)}
+.total-card{padding:24px;background:#fff;border-radius:14px;border:1.5px solid rgba(0,0,0,0.08);text-align:center;margin-bottom:20px}
+.total-num{font-size:28px;font-weight:700;color:#1a1a1a;display:block;margin-bottom:2px}.total-label{font-size:11px;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:1px}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:20px}
+.summary-cell{background:#fff;border-radius:10px;padding:14px 8px;text-align:center;border:1.5px solid rgba(0,0,0,0.08)}
+.summary-val{font-size:18px;font-weight:600;color:#1a1a1a}.summary-lbl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:rgba(0,0,0,0.4);margin-top:2px}
+.shop-category{margin-bottom:20px}
+.shop-wrap{background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,0.08);overflow:hidden}
+.shop-item{display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;border-bottom:1px solid rgba(0,0,0,0.06)}.shop-item:last-child{border-bottom:none}
+.shop-check{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(0,0,0,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.shop-check.on{background:#1a1a1a;border-color:#1a1a1a}.shop-check.on svg{display:block}.shop-check svg{display:none;width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.shop-label{font-size:13px;color:#333}.shop-label.on{color:rgba(0,0,0,0.25);text-decoration:line-through}
+.panel-footer{padding:18px 32px 24px;border-top:1px solid rgba(0,0,0,0.08);background:#fff;flex-shrink:0}
+.price-row{display:flex;justify-content:space-between;align-items:baseline}.price-label{font-size:13px;color:rgba(0,0,0,0.4)}.price-value{font-size:22px;font-weight:600;color:#1a1a1a}.price-unit{font-size:14px;font-weight:400;color:rgba(0,0,0,0.4)}
+/* DNES */
+.progress-wrap{margin-bottom:20px}
+.progress-bar-bg{height:8px;background:rgba(0,0,0,0.06);border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:#1a1a1a;border-radius:4px;transition:width 0.4s}
+.progress-text{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:rgba(0,0,0,0.4)}.progress-text b{color:#1a1a1a}
+.streak-card{display:flex;align-items:center;gap:16px;padding:18px 20px;background:#fff;border-radius:14px;border:1.5px solid rgba(0,0,0,0.08);margin-bottom:20px}
+.streak-num{font-size:32px;font-weight:700;color:#1a1a1a;line-height:1}.streak-label{font-size:11px;color:rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:1px}.streak-sub{font-size:12px;color:rgba(0,0,0,0.35);margin-top:2px}
+.day-block{margin-bottom:10px;background:#fff;border-radius:14px;border:1.5px solid rgba(0,0,0,0.08);overflow:hidden;transition:all 0.2s}
+.day-block.now{border-color:#1a1a1a;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.day-block.missed{border-color:#e74c3c;border-width:2px}
+.day-block.alldone{opacity:0.5}
+.db-header{display:flex;align-items:center;gap:12px;padding:14px 18px}
+.db-time{font-size:13px;font-weight:700;color:#1a1a1a;min-width:42px}.db-title{font-size:14px;font-weight:600;color:#1a1a1a;flex:1}
+.db-badge{font-size:9px;padding:3px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.db-badge.now-badge{background:#1a1a1a;color:#fff}.db-badge.done-badge{background:rgba(42,138,70,0.1);color:#2a8a46}.db-badge.missed-badge{background:rgba(231,76,60,0.1);color:#e74c3c}
+.db-items{padding:0 18px 14px;display:flex;flex-direction:column;gap:4px}
+.db-item{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.db-check{width:22px;height:22px;border-radius:7px;border:2px solid rgba(0,0,0,0.12);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.db-check.on{background:#1a1a1a;border-color:#1a1a1a}.db-check.on svg{display:block}.db-check svg{display:none;width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.db-item-text{font-size:13px;color:#333}.db-item-text.on{color:rgba(0,0,0,0.25);text-decoration:line-through}
+@media(max-width:768px){
+body{padding:0}
+.window{max-width:100%;height:100vh;height:100dvh;min-height:auto;border-radius:0;box-shadow:none;background:#fff}
+.window::before{display:none}
+.page-card{margin:0;border-radius:0;height:100%}
+.sub-header{padding:16px;padding-top:max(16px,env(safe-area-inset-top));border-radius:0}
+.header-meta{display:none}
+.breadcrumb-bar{padding:12px 16px}.tabs-wrap{padding:12px 16px 0}
+.content-area{padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom))}
+.recipe-header{padding:20px 16px}.recipe-body{padding:16px}
+.summary-grid{grid-template-columns:1fr 1fr}
+.scope-tab{font-size:11px;padding:10px 2px}
+.panel-footer{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+<div class="window"><div class="page-card">
+<div class="sub-header">
+<div class="logo-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+<div class="logo-text">Gut Rebuild</div>
+<div class="header-meta">Celiak | 2850 kcal</div>
+</div>
+<div class="breadcrumb-bar" id="breadcrumb"><div class="back-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div><span id="breadcrumbContent"></span></div>
+<div class="tabs-wrap" id="tabsWrap"><div class="scope-tabs">
+<div class="scope-tab active" onclick="switchTab(0)">Dnes</div>
+<div class="scope-tab" onclick="switchTab(1)">Jidelnicek</div>
+<div class="scope-tab" onclick="switchTab(2)">Suplementy</div>
+<div class="scope-tab" onclick="switchTab(3)">Hydratace</div>
+<div class="scope-tab" onclick="switchTab(4)">Nakupy</div>
+</div></div>
+<div class="content-area" id="contentArea">
+<div class="view active" id="view-today"><div id="todayContent"></div></div>
+<div class="view" id="view-meals"><div class="info-label">5 jidel denne / 5 variaci</div><div id="mealsList"></div><div class="summary-grid"><div class="summary-cell"><div class="summary-val">~2850</div><div class="summary-lbl">kcal</div></div><div class="summary-cell"><div class="summary-val">~155g</div><div class="summary-lbl">protein</div></div><div class="summary-cell"><div class="summary-val">~350g</div><div class="summary-lbl">sacharidy</div></div><div class="summary-cell"><div class="summary-val">~55g</div><div class="summary-lbl">tuky</div></div></div></div>
+<div class="view" id="view-variants"><div class="info-label" id="variantsLabel"></div><div id="variantsList"></div></div>
+<div class="view" id="view-recipe"><div id="recipeContent"></div></div>
+<div class="view" id="view-supps"><div class="info-label">Suplementacni protokol</div><p style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:16px;line-height:1.6">Konzultuj s lekarem.</p><div id="suppsList"></div></div>
+<div class="view" id="view-hydro"><div class="total-card"><span class="total-num">3.0 - 3.5l</span><span class="total-label">denni prijem tekutin</span></div><div class="info-label">Casovy plan</div><div id="hydroList"></div></div>
+<div class="view" id="view-shop"><p style="font-size:12px;color:rgba(0,0,0,0.5);margin-bottom:4px">Tydenni nakup</p><p style="font-size:12px;color:rgba(0,0,0,0.4);margin-bottom:20px">Jidlo: ~2 700 Kc/tyden | Suplementy: ~3 500 Kc</p><div id="shopList"></div></div>
+</div>
+<div class="panel-footer" id="footer" style="display:none"><div class="price-row"><span class="price-label">denni cil</span><span class="price-value">2 850 <span class="price-unit">kcal</span></span></div></div>
+</div></div>
+<script>
+/* === DATA === */
+var SCHEDULE=[
+{time:'6:30',h:6.5,title:'Nalacno',items:['L-Glutamin 5g do vody','Probiotika 1 kapsle','Vlazna voda s citronem 300ml']},
+{time:'7:00',h:7,title:'Snidane',items:['Vitamin D3+K2 + B-komplex + Omega-3','Pripravit a snist snidani','Voda 500ml do 9:00']},
+{time:'10:00',h:10,title:'Dopoledni svacina',items:['Matcha z termosky','Kreatin 5g do vody','Sezrat svacinu','Voda 500ml do 12:00']},
+{time:'12:30',h:12.5,title:'Obed',items:['Omega-3 1g + Travici enzymy','Obed z jidelnicku','Voda + hermankovy caj 750ml do 15:00']},
+{time:'15:30',h:15.5,title:'Shake + svacina',items:['DIY gainer: whey 30g + palatinose 50g + banan','L-Glutamin 5g v shakeru','Nebo svacina z jidelnicku']},
+{time:'18:30',h:18.5,title:'Vecere',items:['Kombucha 150ml + Zinek 25mg','Vecere z jidelnicku','Zazvorovy caj 250ml']},
+{time:'21:00',h:21,title:'Pred spanim',items:['Shake #2: whey 30g + palatinose 40g + mleko','Horcik 400mg + Kolagen 10g','Posledni voda 300ml']}
+];
+
+var MEALS=[
+{key:'snidane',time:'7:00',label:'Snidane',variants:[
+{name:'Michana vejce s avokadovym toastem',desc:'Kremova michana vejce na GF toastu.',t:5,kcal:430,p:24,c:35,f:20,ing:['Vejce 3ks','GF toast 2ks','Avokado 1/2ks','Citron par kapek','Olivovy olej 5ml','Sul, pepr'],steps:['GF toasty vloz do topinkovace.','Avokado rozdrtt vidlickou, okoren citronem a soli. Namacej na toasty.','Vejce rozslehej vidlickou, osol, opopri.','Panev na mirny plamen, olej. Vlij vejce, pomalu michej 2-3 min.','Michana vejce poloz na toasty.']},
+{name:'Varena vejce s GF toastem',desc:'Vejce namekko se zeleninou a GF toasty.',t:7,kcal:380,p:22,c:36,f:14,ing:['Vejce 3ks','GF toast 2ks','Rajce 1ks','Okurka 1/4ks','Olivovy olej','Sul, pepr'],steps:['Vejce var 6.5 min (namekko). Prelij studenou vodou, oloupej.','GF toasty opec.','Rajce a okurku nakrajej. Toasty, vejce, zeleninu na talik.']},
+{name:'Omeleta se spenatem + GF toast',desc:'Rychla omeleta s cerstvym spenatem.',t:5,kcal:410,p:26,c:38,f:16,ing:['Vejce 3ks','Spenat hrstka','Rajce 1ks','GF toast 2ks','Olivovy olej 5ml','Sul, pepr'],steps:['GF toasty do topinkovace.','Vejce rozslehej, osol, opopri.','Panev, olej. Vlij vejce, po 30s spenat a rajce.','Prehni napul. Podavej s toasty.']},
+{name:'Chia pudink s mangem',desc:'Overnight chia pudink.',t:0,kcal:380,p:12,c:42,f:14,ing:['Chia seminka 40g','Bezlakt. mleko 300ml','Mango 100g','Med 10g'],steps:['[VECER] Chia + mleko, zamichej, do lednice.','[RANO] Mango navrch, zakap medem.']},
+{name:'Kukuricne livanecky s jahodami',desc:'Livanecky z kukuricne mouky.',t:5,kcal:400,p:18,c:65,f:7,ing:['Kukuricna mouka 80g','Vejce 2ks','Bezlakt. mleko 100ml','Jahody 100g','Med 10g','Sul'],steps:['[VECER] Smichej mouku, vejce, mleko, sul. Do lednice.','[RANO] Panev, olej. Opekej 1.5 min z kazde strany.','Podavej s jahodami a medem.']}
+]},
+{key:'svacina1',time:'10:00',label:'Dopoledni svacina',variants:[
+{name:'Ryzove kolacky se sunkou',desc:'Kolacky s GF sunkou a okurkou.',t:2,kcal:220,p:14,c:30,f:4,ing:['Ryzove kolacky 3ks','GF sunka 60g','Okurka 1/2ks'],steps:['Na kolacky poloz sunky a okurku.']},
+{name:'Banan s arasidovym maslem',desc:'Banan s 100% arasidovym maslem.',t:1,kcal:250,p:8,c:35,f:10,ing:['Banan 1ks','Arasidove maslo 20g'],steps:['Banan oloupej, rozkroj, potri maslem.']},
+{name:'Bezlakt. tvaroh s malinami',desc:'Tvaroh s malinami a medem.',t:2,kcal:200,p:20,c:22,f:3,ing:['Bezlakt. tvaroh 150g','Maliny 80g','Med 10g'],steps:['Tvaroh do misky, maliny, med.']},
+{name:'Varena vejce + zelenina',desc:'Vejce natvrdo se zeleninou.',t:1,kcal:210,p:14,c:12,f:10,ing:['Vejce 2ks','Mrkev 1ks','Paprika 1/2ks'],steps:['[VECER] Vejce var 10 min, oloupej, do lednice.','[RANO] Zeleninu nakrajej, sbal s vejci.']},
+{name:'Kolacky s avokadovou pomazankou',desc:'Ryzove kolacky s avokadem.',t:3,kcal:280,p:5,c:32,f:14,ing:['Ryzove kolacky 3ks','Avokado 1/2ks','Citron','Sul'],steps:['Avokado rozdrtt, okoren, namacej na kolacky.']}
+]},
+{key:'obed',time:'12:30',label:'Obed',variants:[
+{name:'Kureci prsa s ryzi a brokolici',desc:'Grilovana kureci prsa s ryzi a kurkumou.',t:35,kcal:620,p:48,c:68,f:12,ing:['Kureci prsa 180g','Jasminova ryze 100g','Brokolice 150g','Mrkev 100g','Olivovy olej 5ml','Kurkuma','Sul, pepr'],steps:['Ryzi var 12 min.','Kureci okoren, opekej 5-6 min z kazde strany.','Brokolici a mrkev var 6-8 min.','Servyruj.']},
+{name:'Losos s bramborami a cuketou',desc:'Peceny losos s bramborami.',t:30,kcal:580,p:40,c:55,f:14,ing:['Losos 150g','Brambory 250g','Cuketa 150g','Citron','Kopr','Olivovy olej','Sul, pepr'],steps:['Brambory var 15-18 min.','Lososa opekej 4 min kuzi dolu, otoc, 3 min.','Cuketu pridej na panev.','Servyruj s citronem a koprem.']},
+{name:'Kruti prsa s pohankou',desc:'Dusene kruti prsa v rajcatech.',t:30,kcal:590,p:50,c:62,f:8,ing:['Kruti prsa 180g','Pohanka 100g','Pasirkovana rajcata 150g','Cesnek 2 str.','Spenat','Bazalka','Olivovy olej','Sul, pepr'],steps:['Pohanku var 12-15 min.','Kruti nakrajej, opekej 6-8 min.','Cesnek, rajcata, bazalka. Dus 10 min.','Spenat pridej na konci.']},
+{name:'Hovezi steak s batatami',desc:'Steak s pecenymi batatami.',t:40,kcal:600,p:42,c:65,f:12,ing:['Hovezi steak 150g','Bataty 250g','Zelene fazolky 150g','Rozmaryn','Olivovy olej','Sul, pepr'],steps:['Trouba 200C. Bataty pec 25-30 min.','Fazolky var 5-6 min.','Steak opekej 3-4 min z kazde strany.','Nech 5 min odpocinout.']},
+{name:'GF testoviny s kurecim ragu',desc:'Bezlepkove testoviny s kurecim.',t:30,kcal:580,p:44,c:70,f:10,ing:['GF testoviny 100g','Kureci prsa 150g','Rajcata 200g','Cibule 1ks','Bazalka','Olivovy olej','Sul, pepr'],steps:['GF testoviny var 8-10 min.','Cibuli opekej 3 min, pridej kureci 5-6 min.','Rajcata, bazalka, dus 12-15 min.','Smichej s testovinama.']}
+]},
+{key:'svacina2',time:'15:30',label:'Odpoledni svacina',variants:[
+{name:'DIY gainer shake',desc:'Whey izolat + palatinose + banan.',t:3,kcal:500,p:32,c:72,f:6,ing:['Whey izolat bezlakt. 30g','Palatinose (isomaltulose) 50g','Banan 1ks','Voda/bezlakt. mleko 300ml','L-Glutamin 5g'],steps:['Palatinose a whey do shakeru.','Banan, L-Glutamin, tekutina.','Protrepej. Do lahve, do lednice.']},
+{name:'Kolacky s kurecim masem',desc:'Kolacky se studenym kurecim.',t:3,kcal:260,p:22,c:30,f:4,ing:['Ryzove kolacky 3ks','Studene kureci 80g','Okurka 1/3ks','GF horcice'],steps:['Kureci nakrajej, poloz na kolacky s okurkou a horcici.']},
+{name:'Shake s palatinose',desc:'Whey + palatinose + banan.',t:3,kcal:400,p:32,c:52,f:4,ing:['Whey izolat bezlakt. 30g','Palatinose 30g','Banan 1ks','Bezlakt. mleko 250ml','L-Glutamin 5g'],steps:['Whey a palatinose do shakeru.','Banan, L-Glutamin, mleko. Protrepej.']},
+{name:'Smoothie s proteinem',desc:'Jahodove smoothie s whey.',t:3,kcal:270,p:26,c:32,f:3,ing:['Jahody 100g','Spenat hrstka','Whey izolat 25g','Voda 200ml'],steps:['Vse zmixuj v blenderu.']},
+{name:'Bezlakt. tvaroh se seminky',desc:'Tvaroh se slunecnicovymi seminky.',t:2,kcal:240,p:22,c:18,f:8,ing:['Bezlakt. tvaroh 150g','Slunecnicova seminka 15g','Med 10g'],steps:['Tvaroh, seminky, med.']}
+]},
+{key:'vecere',time:'18:30',label:'Vecere',variants:[
+{name:'Losos s quinoou a spenatem',desc:'Peceny losos na quinoe.',t:25,kcal:540,p:42,c:45,f:16,ing:['Losos 150g','Quinoa 80g','Spenat 150g','Citron','Olivovy olej','Sul, pepr'],steps:['Quinou var 15 min.','Lososa opekej 4+3 min.','Spenat dus 2-3 min.','Servyruj s citronem.']},
+{name:'Kureci wok s ryzovymi nudlemi',desc:'Rychly wok s kurecim.',t:20,kcal:500,p:40,c:55,f:8,ing:['Kureci prsa 150g','Ryzove nudle 80g','Paprika 1/2ks','Cuketa 1/2ks','Mrkev 1ks','Tamari 15ml','Zazvor 1cm','Olivovy olej'],steps:['Nudle zalij vrici vodou 5 min.','Kureci a zeleninu opekej ve woku.','Pridej nudle, tamari, zazvor.']},
+{name:'Treska s bramborovym pyre',desc:'Opecena treska s pyre.',t:25,kcal:480,p:38,c:52,f:8,ing:['Treska 180g','Brambory 250g','Bezlakt. maslo 10g','Bezlakt. mleko 30ml','Petrzele','Citron','Sul, pepr'],steps:['Brambory var 18-20 min, rozstouchej s maslem a mlekem.','Tresku opekej 3-4 min z kazde strany.','Servyruj s citronem a petrzelkou.']},
+{name:'Hovezi mlete s ryzovymi nudlemi',desc:'Mlete v rajcatove omacce.',t:25,kcal:530,p:40,c:55,f:12,ing:['Hovezi mlete 150g','Ryzove nudle 80g','Pasirkovana rajcata 150g','Cuketa 1/2ks','Cesnek','Sul, pepr'],steps:['Nudle zalij vrici vodou 5 min.','Mlete opekej 6-8 min, pridej cuketu, cesnek.','Rajcata, dus 10 min. Servyruj na nudlich.']},
+{name:'Kruti prsa s batatovym pyre',desc:'Kruti prsa s batatovym pyre.',t:30,kcal:510,p:48,c:55,f:6,ing:['Kruti prsa 180g','Bataty 250g','Brokolice 150g','Tymian','Sul, pepr'],steps:['Bataty var 18-20 min, rozstouchej.','Brokolici var 6-8 min.','Kruti opekej 6-7 min z kazde strany.','Servyruj.']}
+]}
+];
+
+var SUPPS=[
+{name:'L-Glutamin',dose:'5g prasek do vody',when:'6:30 nalacno',when2:'15:30 v shakeru'},
+{name:'Probiotika',dose:'1 kapsle',when:'6:30 nalacno'},
+{name:'Vitamin D3 + K2',dose:'4000 IU + 100mcg',when:'7:00 se snidani'},
+{name:'B-komplex',dose:'1 tableta',when:'7:00 se snidani'},
+{name:'Omega-3',dose:'1g',when:'7:00 se snidani',when2:'12:30 s obedem'},
+{name:'Shake #1 (po treningu)',dose:'Whey 30g + palatinose 50g + banan + voda (~480 kcal)',when:'Po treningu (cca 10:00 nebo 15:30)'},
+{name:'Shake #2 (vecer)',dose:'Whey 30g + palatinose 40g + bezlakt. mleko (~450 kcal)',when:'21:00 pred spanim'},
+{name:'Matcha',dose:'1 salek (termoska)',when:'10:00 dopoledne'},
+{name:'Kreatin',dose:'5g',when:'10:00 do vody'},
+{name:'Travici enzymy',dose:'1 kapsle',when:'12:30 s obedem'},
+{name:'Kombucha',dose:'150ml',when:'18:30 k veceri'},
+{name:'Zinek',dose:'25mg bisglycinate',when:'18:30 s veceri'},
+{name:'Horcik',dose:'400mg bisglycinate',when:'21:00 pred spanim'},
+{name:'Kolagen',dose:'10g prasek do vody',when:'21:00 pred spanim'}
+];
+
+var HYDRO=[
+{time:'6:30',what:'Vlazna voda s citronem',ml:'300ml'},
+{time:'7:00 - 9:00',what:'Voda',ml:'500ml'},
+{time:'10:00',what:'Matcha (termoska)',ml:'250ml'},
+{time:'10:00 - 12:00',what:'Voda',ml:'500ml'},
+{time:'12:30 - 15:00',what:'Voda + hermankovy caj',ml:'750ml'},
+{time:'15:30',what:'Shake',ml:'300ml'},
+{time:'16:00 - 18:00',what:'Zazvorovy caj',ml:'250ml'},
+{time:'18:30',what:'Kombucha',ml:'150ml'},
+{time:'19:00 - 21:00',what:'Voda + hermankovy caj',ml:'550ml'}
+];
+
+var SHOP={
+'Maso a ryby':['Kureci prsa 1.5kg','Kruti prsa 1kg','Losos filet 600g','Hovezi steak 500g','Hovezi mlete 500g','Treska filet 400g','GF sunka 200g'],
+'Vejce':['Vejce 20ks'],
+'Ovoce':['Banany 7ks','Boruvky 2x','Jahody 2x','Maliny 1x','Mango 2ks','Citrony 4ks'],
+'Zelenina':['Brokolice 2ks','Spenat 2 bal','Cuketa 3ks','Rajcata 1kg','Paprika 3ks','Mrkev 500g','Okurky 2ks','Cibule 500g','Cesnek 2 hl.','Zazvor 1ks','Bataty 1kg','Brambory 2kg','Zelene fazolky 300g','Avokado 2ks','Petrzele 1 sv.'],
+'Mlecne bezlakt.':['Bezlakt. mleko 1.5% 3l','Bezlakt. tvaroh 4x 150g','Bezlakt. maslo 1ks'],
+'Obiloviny':['Jasminova ryze 1kg','Quinoa 500g','Pohanka 500g','GF testoviny 500g','Ryzove nudle 400g','Ryzove kolacky 2 bal','Kukuricna mouka 500g','GF toast chleb 1 bal'],
+'Orechy':['Arasidove maslo 1 skl.','Chia seminka 200g','Slunecnicova seminka 200g'],
+'Koreni':['Olivovy olej','Kurkuma','Skorice','Rozmaryn','Tymian','Bazalka','Kopr','Tamari','GF horcice','Med 1 skl.','Pasirkovana rajcata 2ks'],
+'Napoje':['Hermankovy caj','Zazvorovy caj','Matcha prasek','Kombucha 4 lahve'],
+'Suplementy':['L-Glutamin 500g','Vitamin D3+K2','B-komplex','Omega-3','Probiotika','Kreatin 500g','Whey izolat bezlakt. 1kg','Palatinose 1kg','Horcik bisglycinate','Zinek bisglycinate','Kolagen peptidy','Travici enzymy']
+};
+
+/* === STATE === */
+var currentTab=0,currentMeal=null,currentRecipe=null,checkedItems={};
+
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function loadToday(){try{var d=JSON.parse(localStorage.getItem('gr_today_'+todayKey()));return d||{}}catch(e){return{}}}
+function saveToday(d){localStorage.setItem('gr_today_'+todayKey(),JSON.stringify(d))}
+function loadStreak(){try{return parseInt(localStorage.getItem('gr_streak'))||0}catch(e){return 0}}
+function saveStreak(n){localStorage.setItem('gr_streak',n)}
+
+function getBlockStatus(block,i){
+  var now=new Date();var ch=now.getHours()+now.getMinutes()/60;
+  var nextH=i<SCHEDULE.length-1?SCHEDULE[i+1].h:24;
+  var td=loadToday();
+  var allDone=true;
+  for(var j=0;j<block.items.length;j++){if(!td[i+'_'+j])allDone=false}
+  if(ch>=block.h&&ch<nextH)return allDone?'now-done':'now';
+  if(ch>=nextH&&!allDone)return 'missed';
+  if(allDone)return 'done';
+  if(ch<block.h)return 'future';
+  return 'past';
+}
+
+function renderToday(){
+  var td=loadToday();
+  var totalItems=0,doneItems=0;
+  SCHEDULE.forEach(function(b,i){b.items.forEach(function(_,j){totalItems++;if(td[i+'_'+j])doneItems++})});
+  var pct=totalItems?Math.round(doneItems/totalItems*100):0;
+
+  var h='<div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+pct+'%"></div></div>';
+  h+='<div class="progress-text"><span><b>'+doneItems+'</b> / '+totalItems+' splneno</span><span><b>'+pct+'%</b></span></div></div>';
+
+  var streak=loadStreak();
+  h+='<div class="streak-card"><div><div class="streak-num">'+streak+'</div></div><div><div class="streak-label">Dni v rade</div><div class="streak-sub">Nesplnene = reset na 0</div></div></div>';
+
+  SCHEDULE.forEach(function(block,i){
+    var status=getBlockStatus(block,i);
+    var cls='day-block';
+    if(status==='now'||status==='now-done')cls+=' now';
+    if(status==='missed')cls+=' missed';
+    if(status==='done')cls+=' alldone';
+
+    h+='<div class="'+cls+'">';
+    h+='<div class="db-header"><div class="db-time">'+block.time+'</div><div class="db-title">'+block.title+'</div>';
+
+    if(status==='now')h+='<div class="db-badge now-badge">Ted</div>';
+    else if(status==='now-done')h+='<div class="db-badge done-badge">Hotovo</div>';
+    else if(status==='done')h+='<div class="db-badge done-badge">Hotovo</div>';
+    else if(status==='missed')h+='<div class="db-badge missed-badge">Zmeskano!</div>';
+
+    h+='</div><div class="db-items">';
+    block.items.forEach(function(item,j){
+      var key=i+'_'+j;var on=td[key]?' on':'';
+      h+='<div class="db-item" onclick="toggleToday('+i+','+j+')">';
+      h+='<div class="db-check'+on+'"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';
+      h+='<span class="db-item-text'+on+'">'+item+'</span></div>';
+    });
+    h+='</div></div>';
+  });
+
+  document.getElementById('todayContent').innerHTML=h;
+
+  // scroll to current block on mobile
+  setTimeout(function(){
+    var nowBlock=document.querySelector('.day-block.now');
+    if(nowBlock)nowBlock.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function toggleToday(blockIdx,itemIdx){
+  var td=loadToday();
+  var key=blockIdx+'_'+itemIdx;
+  td[key]=!td[key];
+  saveToday(td);
+  renderToday();
+  checkStreak();
+}
+
+function checkStreak(){
+  // check if yesterday was fully done
+  var yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  var yk=yesterday.toISOString().slice(0,10);
+  try{
+    var yd=JSON.parse(localStorage.getItem('gr_today_'+yk));
+    if(!yd){saveStreak(0);return}
+    var total=0,done=0;
+    SCHEDULE.forEach(function(b,i){b.items.forEach(function(_,j){total++;if(yd[i+'_'+j])done++})});
+    if(done>=total*0.8){
+      // yesterday was good - check current streak
+      var s=loadStreak();
+      var lastCheck=localStorage.getItem('gr_streak_date');
+      if(lastCheck!==todayKey()){saveStreak(s+1);localStorage.setItem('gr_streak_date',todayKey())}
+    }else{saveStreak(0)}
+  }catch(e){saveStreak(0)}
+}
+
+/* === RENDER OTHER TABS === */
+function renderMeals(){var h='';MEALS.forEach(function(m,i){h+='<div class="meal-item" onclick="openMeal('+i+')"><div><div class="meal-name">'+m.label+'</div><div class="meal-meta">'+m.time+' | 5 variaci</div></div><div class="meal-arrow">&#8250;</div></div>'});document.getElementById('mealsList').innerHTML=h}
+
+function renderSupps(){var h='';SUPPS.forEach(function(s){h+='<div class="supp-item"><div class="supp-info"><div class="supp-name">'+s.name+'</div><div class="supp-dose">'+s.dose+'</div><div class="supp-when">'+s.when+'</div>';if(s.when2)h+='<div class="supp-when">'+s.when2+'</div>';h+='</div></div>'});document.getElementById('suppsList').innerHTML=h}
+
+function renderHydro(){var h='';HYDRO.forEach(function(i){h+='<div class="hydro-item"><div><div class="hydro-time">'+i.time+'</div><div class="hydro-what">'+i.what+'</div></div><div class="hydro-ml">'+i.ml+'</div></div>'});document.getElementById('hydroList').innerHTML=h}
+
+function renderShop(){var h='';for(var cat in SHOP){h+='<div class="shop-category"><div class="info-label">'+cat+'</div><div class="shop-wrap">';SHOP[cat].forEach(function(item){var k=cat+'-'+item;var on=checkedItems[k]?' on':'';h+='<div class="shop-item" onclick="toggleShop(\''+k.replace(/'/g,"\\'")+'\')">';h+='<div class="shop-check'+on+'"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>';h+='<span class="shop-label'+on+'">'+item+'</span></div>'});h+='</div></div>'}document.getElementById('shopList').innerHTML=h}
+
+/* === NAVIGATION === */
+function switchTab(n){currentTab=n;currentMeal=null;currentRecipe=null;
+var tabs=document.querySelectorAll('.scope-tab');tabs.forEach(function(t,i){t.className='scope-tab'+(i===n?' active':'')});showView()}
+
+function showView(){
+var views=document.querySelectorAll('.view');views.forEach(function(v){v.classList.remove('active')});
+document.getElementById('breadcrumb').classList.remove('visible');
+document.getElementById('tabsWrap').style.display='';
+document.getElementById('footer').style.display='none';
+
+if(currentTab===0){
+  document.getElementById('view-today').classList.add('active');renderToday();
+}else if(currentTab===1){
+  if(currentRecipe){document.getElementById('view-recipe').classList.add('active');document.getElementById('breadcrumb').classList.add('visible');document.getElementById('tabsWrap').style.display='none'}
+  else if(currentMeal!==null){document.getElementById('view-variants').classList.add('active');document.getElementById('breadcrumb').classList.add('visible')}
+  else{document.getElementById('view-meals').classList.add('active');document.getElementById('footer').style.display=''}
+}else if(currentTab===2)document.getElementById('view-supps').classList.add('active');
+else if(currentTab===3)document.getElementById('view-hydro').classList.add('active');
+else if(currentTab===4)document.getElementById('view-shop').classList.add('active');
+updateBreadcrumb();document.getElementById('contentArea').scrollTop=0}
+
+function updateBreadcrumb(){var bc=document.getElementById('breadcrumbContent');if(currentMeal!==null&&currentRecipe){bc.innerHTML='<span class="crumb" onclick="currentRecipe=null;currentMeal=null;showView()">Jidelnicek</span><span class="sep"> / </span><span class="crumb" onclick="currentRecipe=null;showView()">'+MEALS[currentMeal].label+'</span><span class="sep"> / </span><span class="current">'+currentRecipe.name+'</span>'}else if(currentMeal!==null){bc.innerHTML='<span class="crumb" onclick="currentMeal=null;showView()">Jidelnicek</span><span class="sep"> / </span><span class="current">'+MEALS[currentMeal].label+'</span>'}}
+
+function openMeal(i){currentMeal=i;var m=MEALS[i];document.getElementById('variantsLabel').textContent=m.label+' -- '+m.time;var h='';m.variants.forEach(function(v,vi){h+='<div class="variant-item" onclick="openRecipe('+i+','+vi+')"><div class="v-num">V'+(vi+1)+'</div><div class="v-info"><div class="v-name">'+v.name+'</div><div class="v-desc">'+(v.t===0?'overnight':v.t+' min')+' | '+v.kcal+' kcal | B:'+v.p+'g S:'+v.c+'g T:'+v.f+'g</div></div><div class="v-arrow">&#8250;</div></div>'});document.getElementById('variantsList').innerHTML=h;showView()}
+
+function openRecipe(mi,vi){currentMeal=mi;var r=MEALS[mi].variants[vi];currentRecipe=r;var h='<div class="recipe-header"><div class="recipe-title">'+r.name+'</div><div class="recipe-desc">'+r.desc+'</div><div class="macro-row"><div class="macro-badge"><span>Cas</span>'+(r.t===0?'overnight':r.t+' min')+'</div><div class="macro-badge"><span>Kcal</span>'+r.kcal+'</div><div class="macro-badge"><span>B</span>'+r.p+'g</div><div class="macro-badge"><span>S</span>'+r.c+'g</div><div class="macro-badge"><span>T</span>'+r.f+'g</div></div></div><div class="recipe-body"><div class="info-label">Suroviny</div><div class="ingredients-list">';r.ing.forEach(function(ig){h+='<div class="ing-item"><div class="ing-dot"></div>'+ig+'</div>'});h+='</div><div class="info-label">Postup</div>';r.steps.forEach(function(s,si){var hl=s.indexOf('[')=== 0?' hl':'';h+='<div class="step-item"><div class="step-num'+hl+'">'+(si+1)+'</div><div class="step-text">'+s+'</div></div>'});h+='</div>';document.getElementById('recipeContent').innerHTML=h;showView()}
+
+function goBack(){if(currentRecipe)currentRecipe=null;else if(currentMeal!==null)currentMeal=null;showView()}
+function toggleShop(key){checkedItems[key]=!checkedItems[key];renderShop()}
+
+/* === INIT === */
+renderMeals();renderSupps();renderHydro();renderShop();renderToday();checkStreak();
+
+// auto refresh every minute to update current block
+setInterval(function(){if(currentTab===0)renderToday()},60000);
+
+// midnight reset check
+setInterval(function(){
+  var now=new Date();
+  if(now.getHours()===0&&now.getMinutes()===0){checkStreak()}
+},60000);
+</script>
+</body>
+</html>
